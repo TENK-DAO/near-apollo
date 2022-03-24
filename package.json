@@ -1,0 +1,23 @@
+{
+  "name": "near-apollo",
+  "version": "0.0.0",
+  "description": "Tools for using apollo with near related graphs",
+  "main": "index.js",
+  "author": "willem@ahalabs.dev",
+  "license": "LGPL-3.0",
+  "private": false,
+  "dependencies": {
+    "@apollo/client": "^3.5.10",
+    "cross-fetch": "^3.1.5",
+    "graphql": "^16.3.0",
+    "react": "^17.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.23",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.2"
+  },
+  "scripts": {
+    "query": "ts-node ./src/index.ts"
+  }
+}
