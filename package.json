@@ -20,6 +20,6 @@
     "typescript": "^4.6.2"
   },
   "scripts": {
-    "query": "ts-node ./src/index.ts"
+    "query": "NEAR_ENV=mainnet near repl -s ./src/index.ts "
   }
 }

@@ -3,43 +3,53 @@ import {
     ApolloClient,
     InMemoryCache,
     HttpLink,
-    gql
+    gql,
+    NormalizedCacheObject
 } from "@apollo/client";
 
 import { Context } from "near-cli/context"
 
 import { Contract } from "tenk-nft";
 
-const client = new ApolloClient({
-    link: new HttpLink({ uri: 'https://api.thegraph.com/subgraphs/name/r-strawser/near-future-nft', fetch }),
-    cache: new InMemoryCache()
-});
 
-async function combine(total: number) {
+
+async function combine(client: ApolloClient<NormalizedCacheObject>, total: number) {
     let tokens: any[] = [];
     for (let i = 0; i < total; i += 1000) {
         let { data } = await client
             .query({
                 query: gql`{
           tokens(first: 1000, skip: ${i}, where: { burned: "false"}) {
-            id
             ownerId
+            # id
           }
         }
           `
             });
-        tokens = tokens.concat(data.tokens)
+        //  @ts-ignore no types
+        tokens = tokens.concat(data.tokens).map(({ ownerId }) =>  ownerId )
     }
     return tokens;
 }
 
-export async function main({ account }: Context) {
+export async function main({ account, argv }: Context) {
     if (!account) {
         console.error("need --accountId");
         return;
     }
+    if (!argv || argv.length < 1) {
+        console.error("missing uri argument");
+        console.error("<uri url>");
+        return;
+    }
+    const [uri] = argv;
+    const client = new ApolloClient({
+        link: new HttpLink({ uri, fetch }),
+        cache: new InMemoryCache()
+    });
     let contract = new Contract(account, account ?.accountId);
-    let res = await combine(parseInt(await contract.nft_total_supply()));
-    console.log(res)
+    let res = await combine(client, parseInt(await contract.nft_total_supply()));
+    console.dir(res, {'maxArrayLength': null})
+    console.log(new Set(res).size)
 }
 
